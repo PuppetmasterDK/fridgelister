@@ -31,11 +31,27 @@ class FridgeController extends Controller
             abort(403);
         }
 
-        $items = $fridge->items()->whereNull('used_at')->orderBy('best_before')->get();
+        $items = $fridge->items()->whereNull('used_at')->with('addedBy')->orderBy('best_before')->get();
+
+        // Work out the status of each item for the badges.
+        $counts = ['expired' => 0, 'use_soon' => 0, 'fresh' => 0];
+        foreach ($items as $item) {
+            if ($item->best_before === null) {
+                $item->status = 'fresh';
+            } elseif ($item->best_before->isPast() && ! $item->best_before->isToday()) {
+                $item->status = 'expired';
+            } elseif ($item->best_before->lte(now()->addDays(2))) {
+                $item->status = 'use_soon';
+            } else {
+                $item->status = 'fresh';
+            }
+            $counts[$item->status]++;
+        }
 
         return view('fridges.show', [
             'fridge' => $fridge,
             'items' => $items,
+            'counts' => $counts,
         ]);
     }
 }

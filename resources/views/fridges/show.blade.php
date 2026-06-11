@@ -14,10 +14,10 @@
         <tbody>
         @forelse ($items as $item)
             <tr>
-                <td>{{ $item->name }}</td>
+                <td>{{ $item->name }}<br><span class="muted">added by {{ $item->addedBy?->name }}</span></td>
                 <td>{{ rtrim(rtrim(number_format($item->quantity, 2), '0'), '.') }} {{ $item->unit }}</td>
                 <td>{{ $item->best_before?->format('j M') }}</td>
-                <td></td>
+                <td><span class="badge {{ $item->status }}">{{ \App\Support\Freshness::label($item->status) }}</span></td>
                 <td>
                     <form class="inline" method="POST" action="{{ route('items.use', $item) }}">@csrf<button>Used</button></form>
                     <form class="inline" method="POST" action="{{ route('items.destroy', $item) }}">@csrf @method('DELETE')<button class="plain">Remove</button></form>
