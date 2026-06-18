@@ -21,4 +21,13 @@ class ItemTest extends TestCase
 
         $this->assertDatabaseHas('items', ['name' => 'Milk', 'fridge_id' => $fridge->id]);
     }
+
+    public function test_user_can_mark_an_item_as_used(): void
+    {
+        $item = Item::factory()->create();
+
+        $this->actingAs($item->fridge->owner)->post('/items/'.$item->id.'/use')->assertRedirect();
+
+        $this->assertNotNull($item->fresh()->used_at);
+    }
 }

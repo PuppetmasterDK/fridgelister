@@ -5,6 +5,9 @@
 @section('content')
 <h1>{{ $fridge->name }}</h1>
 <p>
+    <a href="{{ route('fridges.history', $fridge) }}">History</a>
+</p>
+<p>
 </p>
 
 <div class="card">

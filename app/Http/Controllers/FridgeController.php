@@ -54,4 +54,15 @@ class FridgeController extends Controller
             'counts' => $counts,
         ]);
     }
+
+    public function history(Request $request, Fridge $fridge)
+    {
+        if ($fridge->user_id !== $request->user()->id && ! $fridge->isSharedWith($request->user())) {
+            abort(403);
+        }
+
+        $items = $fridge->items()->whereNotNull('used_at')->latest('used_at')->limit(100)->get();
+
+        return view('fridges.history', compact('fridge', 'items'));
+    }
 }
