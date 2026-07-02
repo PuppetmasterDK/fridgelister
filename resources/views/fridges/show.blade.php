@@ -7,8 +7,6 @@
 <p>
     <a href="{{ route('fridges.history', $fridge) }}">History</a>
 </p>
-<p>
-</p>
 
 <div class="card">
 

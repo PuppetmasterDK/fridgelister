@@ -3,15 +3,29 @@
 namespace App\Http\Controllers;
 
 use App\Models\Fridge;
+use App\Models\Share;
 use Illuminate\Http\Request;
 
 class FridgeController extends Controller
 {
     public function index(Request $request)
     {
-        $own = $request->user()->fridges()->withCount(['items' => fn ($q) => $q->whereNull('used_at')])->get();
+        $user = $request->user();
 
-        return view('fridges.index', ['own' => $own, 'shared' => collect(), 'invitations' => collect()]);
+        $own = $user->fridges()->withCount(['items' => fn ($q) => $q->whereNull('used_at')])->get();
+
+        $sharedIds = Share::where('user_id', $user->id)->where('status', 'accepted')->pluck('fridge_id');
+        $shared = Fridge::whereIn('id', $sharedIds)
+            ->withCount(['items' => fn ($q) => $q->whereNull('used_at')])
+            ->with('owner')
+            ->get();
+
+        $invitations = Share::with('fridge.owner')
+            ->where('email', $user->email)
+            ->where('status', 'pending')
+            ->get();
+
+        return view('fridges.index', compact('own', 'shared', 'invitations'));
     }
 
     public function store(Request $request)
@@ -27,8 +41,14 @@ class FridgeController extends Controller
 
     public function show(Request $request, Fridge $fridge)
     {
-        if ($fridge->user_id !== $request->user()->id) {
-            abort(403);
+        $user = $request->user();
+
+        // Only the owner and people the fridge is shared with may see it.
+        if ($fridge->user_id !== $user->id) {
+            $share = $fridge->shares()->where('user_id', $user->id)->first();
+            if (! $share || $share->status !== 'accepted') {
+                abort(403);
+            }
         }
 
         $items = $fridge->items()->whereNull('used_at')->with('addedBy')->orderBy('best_before')->get();
@@ -52,6 +72,8 @@ class FridgeController extends Controller
             'fridge' => $fridge,
             'items' => $items,
             'counts' => $counts,
+            'isOwner' => $fridge->user_id === $user->id,
+            'shares' => $fridge->user_id === $user->id ? $fridge->shares()->latest()->get() : collect(),
         ]);
     }
 

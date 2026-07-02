@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\FridgeController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\ShareController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -23,4 +24,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/items/{item}/use', [ItemController::class, 'markUsed'])->name('items.use');
     Route::delete('/items/{item}', [ItemController::class, 'destroy'])->name('items.destroy');
 
+    Route::post('/fridges/{fridge}/shares', [ShareController::class, 'store'])->name('shares.store');
+    Route::post('/shares/{share}/respond', [ShareController::class, 'respond'])->name('shares.respond');
 });
