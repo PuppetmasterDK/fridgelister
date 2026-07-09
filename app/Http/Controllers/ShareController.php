@@ -45,18 +45,73 @@ class ShareController extends Controller
 
     public function respond(Request $request, Share $share)
     {
-        if (strtolower($share->email) !== strtolower($request->user()->email)) {
+        $user = $request->user();
+
+        if (strtolower($share->email) !== strtolower($user->email)) {
             abort(403);
         }
 
-        if ($request->input('answer') === 'accept') {
-            $share->update(['status' => 'accepted', 'user_id' => $request->user()->id, 'responded_at' => now()]);
-
-            return redirect()->route('fridges.show', $share->fridge_id)->with('status', 'Thank you!');
+        if ($share->status !== 'pending') {
+            return redirect()->route('fridges.index')->withErrors(['share' => 'You have already answered this invitation.']);
         }
 
-        $share->update(['status' => 'declined', 'responded_at' => now()]);
+        $answer = $request->input('answer');
 
-        return redirect()->route('fridges.index')->with('status', 'Invitation declined.');
+        if ($answer === 'accept') {
+            $shopBy = $request->input('shop_by');
+            if (! $shopBy) {
+                return back()->withErrors(['shop_by' => 'Please choose the date you will do the shopping by.']);
+            }
+
+            try {
+                $date = Carbon::parse($shopBy);
+            } catch (\Exception $e) {
+                return back()->withErrors(['shop_by' => 'That is not a date we understand.']);
+            }
+
+            if ($date->isPast() && ! $date->isToday()) {
+                return back()->withErrors(['shop_by' => 'The shopping date cannot be in the past.']);
+            }
+
+            if ($date->gt(now()->addDays(14))) {
+                return back()->withErrors(['shop_by' => 'Please choose a date within the next two weeks.']);
+            }
+
+            $share->update([
+                'status' => 'accepted',
+                'user_id' => $user->id,
+                'shop_by' => $date,
+                'responded_at' => now(),
+            ]);
+
+            return redirect()->route('fridges.show', $share->fridge_id)
+                ->with('status', 'Thank you! You will shop for this fridge by '.$this->formatShopBy($date).'.');
+        } elseif ($answer === 'decline') {
+            $share->update([
+                'status' => 'declined',
+                'responded_at' => now(),
+            ]);
+
+            return redirect()->route('fridges.index')->with('status', 'Invitation declined.');
+        }
+
+        return back()->withErrors(['answer' => 'Please accept or decline.']);
+    }
+
+    private function formatShopBy(Carbon $date): string
+    {
+        $days = (int) now()->startOfDay()->diffInDays($date->copy()->startOfDay(), false);
+
+        if ($days === 0) {
+            return 'today';
+        }
+        if ($days === 1) {
+            return 'tomorrow';
+        }
+        if ($days < 7) {
+            return 'in '.$days.' days';
+        }
+
+        return $date->format('j M');
     }
 }
