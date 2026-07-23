@@ -51,7 +51,7 @@ class FridgeController extends Controller
             }
         }
 
-        $items = $fridge->items()->whereNull('used_at')->with('addedBy')->orderBy('best_before')->get();
+        $items = $fridge->items()->whereNull('used_at')->with('addedBy')->get();
 
         // Work out the status of each item for the badges.
         $counts = ['expired' => 0, 'use_soon' => 0, 'fresh' => 0];
@@ -68,12 +68,33 @@ class FridgeController extends Controller
             $counts[$item->status]++;
         }
 
+        // Filter by status if the user picked one.
+        $filter = $request->query('status');
+        if ($filter && in_array($filter, ['expired', 'use_soon', 'fresh'])) {
+            $items = $items->filter(fn ($item) => $item->status === $filter);
+        }
+
+        // Sorting
+        $sort = $request->query('sort', 'best_before');
+        if ($sort === 'name') {
+            $items = $items->sortBy(fn ($item) => mb_strtolower($item->name));
+        } elseif ($sort === 'added') {
+            $items = $items->sortByDesc('created_at');
+        } else {
+            $items = $items->sortBy('best_before');
+        }
+
+        $isOwner = $fridge->user_id === $user->id;
+        $shares = $isOwner ? $fridge->shares()->latest()->get() : collect();
+
         return view('fridges.show', [
             'fridge' => $fridge,
-            'items' => $items,
+            'items' => $items->values(),
             'counts' => $counts,
-            'isOwner' => $fridge->user_id === $user->id,
-            'shares' => $fridge->user_id === $user->id ? $fridge->shares()->latest()->get() : collect(),
+            'filter' => $filter,
+            'sort' => $sort,
+            'isOwner' => $isOwner,
+            'shares' => $shares,
         ]);
     }
 

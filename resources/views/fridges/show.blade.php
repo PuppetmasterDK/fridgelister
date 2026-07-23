@@ -9,6 +9,19 @@
 </p>
 
 <div class="card">
+    <div class="row">
+        <span>Show:</span>
+        <a href="{{ route('fridges.show', [$fridge, 'sort' => $sort]) }}">All</a>
+        <a href="{{ route('fridges.show', [$fridge, 'status' => 'expired', 'sort' => $sort]) }}">Past best before ({{ $counts['expired'] }})</a>
+        <a href="{{ route('fridges.show', [$fridge, 'status' => 'use_soon', 'sort' => $sort]) }}">Use soon ({{ $counts['use_soon'] }})</a>
+        <a href="{{ route('fridges.show', [$fridge, 'status' => 'fresh', 'sort' => $sort]) }}">Fresh ({{ $counts['fresh'] }})</a>
+    </div>
+    <div class="row">
+        <span>Sort:</span>
+        <a href="{{ route('fridges.show', [$fridge, 'status' => $filter, 'sort' => 'best_before']) }}">Best before</a>
+        <a href="{{ route('fridges.show', [$fridge, 'status' => $filter, 'sort' => 'name']) }}">Name</a>
+        <a href="{{ route('fridges.show', [$fridge, 'status' => $filter, 'sort' => 'added']) }}">Newest</a>
+    </div>
 
     <table>
         <thead><tr><th>Item</th><th>Amount</th><th>Best before</th><th></th><th></th></tr></thead>
@@ -43,4 +56,17 @@
     </form>
 </div>
 
+@if ($isOwner)
+<div class="card">
+    <h2>Helpers</h2>
+    @foreach ($shares as $share)
+        <p>{{ $share->email }} <span class="muted">· {{ $share->status }}@if ($share->shop_by) · shops by {{ $share->shop_by->format('j M') }}@endif</span></p>
+    @endforeach
+    <form method="POST" action="{{ route('shares.store', $fridge) }}" class="row">
+        @csrf
+        <input type="email" name="email" placeholder="helper@example.com" required>
+        <button>Invite</button>
+    </form>
+</div>
+@endif
 @endsection
