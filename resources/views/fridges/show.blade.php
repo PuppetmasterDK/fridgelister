@@ -30,7 +30,7 @@
             <tr>
                 <td>{{ $item->name }}<br><span class="muted">added by {{ $item->addedBy?->name }}</span></td>
                 <td>{{ rtrim(rtrim(number_format($item->quantity, 2), '0'), '.') }} {{ $item->unit }}</td>
-                <td>{{ $item->best_before?->format('j M') }}</td>
+                <td>{{ $item->friendly_date }}</td>
                 <td><span class="badge {{ $item->status }}">{{ \App\Support\Freshness::label($item->status) }}</span></td>
                 <td>
                     <form class="inline" method="POST" action="{{ route('items.use', $item) }}">@csrf<button>Used</button></form>
@@ -60,7 +60,7 @@
 <div class="card">
     <h2>Helpers</h2>
     @foreach ($shares as $share)
-        <p>{{ $share->email }} <span class="muted">· {{ $share->status }}@if ($share->shop_by) · shops by {{ $share->shop_by->format('j M') }}@endif</span></p>
+        <p>{{ $share->email }} <span class="muted">· {{ $share->status }}@if ($share->shop_by) · shops by {{ \App\Support\Dates::friendly($share->shop_by) }}@endif</span></p>
     @endforeach
     <form method="POST" action="{{ route('shares.store', $fridge) }}" class="row">
         @csrf

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Fridge;
 use App\Models\Share;
+use App\Support\Dates;
 use Illuminate\Http\Request;
 
 class FridgeController extends Controller
@@ -66,6 +67,7 @@ class FridgeController extends Controller
                 $item->status = 'fresh';
             }
             $counts[$item->status]++;
+            $item->friendly_date = Dates::friendly($item->best_before);
         }
 
         // Filter by status if the user picked one.
