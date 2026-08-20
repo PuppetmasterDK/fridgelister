@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\FridgeController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\RestockController;
 use App\Http\Controllers\ShareController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +20,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/fridges', [FridgeController::class, 'store'])->name('fridges.store');
     Route::get('/fridges/{fridge}', [FridgeController::class, 'show'])->name('fridges.show');
     Route::get('/fridges/{fridge}/history', [FridgeController::class, 'history'])->name('fridges.history');
+    Route::get('/fridges/{fridge}/restock', RestockController::class)->name('fridges.restock');
 
     Route::post('/fridges/{fridge}/items', [ItemController::class, 'store'])->name('items.store');
     Route::post('/items/{item}/use', [ItemController::class, 'markUsed'])->name('items.use');

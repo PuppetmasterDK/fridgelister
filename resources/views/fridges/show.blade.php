@@ -5,6 +5,7 @@
 @section('content')
 <h1>{{ $fridge->name }}</h1>
 <p>
+    <a href="{{ route('fridges.restock', $fridge) }}">What to buy</a> ·
     <a href="{{ route('fridges.history', $fridge) }}">History</a>
 </p>
 
