@@ -38,6 +38,7 @@
 <header>
     <strong>FridgeLister</strong>
     <nav>
+        <a href="{{ route('dashboard') }}">Overview</a>
         <a href="{{ route('fridges.index') }}">Fridges</a>
     </nav>
     <span class="muted">{{ auth()->user()->name }}</span>

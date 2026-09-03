@@ -11,6 +11,13 @@ class FridgeTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_dashboard_loads(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->get('/dashboard')->assertOk();
+    }
+
     public function test_fridges_page_loads(): void
     {
         $user = User::factory()->create();
