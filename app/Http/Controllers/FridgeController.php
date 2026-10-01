@@ -83,7 +83,8 @@ class FridgeController extends Controller
         } elseif ($sort === 'added') {
             $items = $items->sortByDesc('created_at');
         } else {
-            $items = $items->sortBy('best_before');
+            // Items without a date go last.
+            $items = $items->sortBy(fn ($item) => $item->best_before ? $item->best_before->timestamp : PHP_INT_MAX);
         }
 
         $isOwner = $fridge->user_id === $user->id;
