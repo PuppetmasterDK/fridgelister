@@ -1,0 +1,34 @@
+// A ready-made machine for FridgeLister in GitHub Codespaces (or any editor
+// that supports dev containers): PHP 8.4, Composer, Git and Claude Code, with
+// the demo data loaded. Nothing to install on your own computer.
+{
+    "name": "FridgeLister",
+    "image": "mcr.microsoft.com/devcontainers/php:4-8.4",
+    "containerEnv": {
+        // The image turns on Xdebug's step debugger, which prints a warning
+        // on every php command when no debugger listens. Coverage still works
+        // with XDEBUG_MODE=coverage in front of the test command.
+        "XDEBUG_MODE": "off"
+    },
+    "remoteEnv": {
+        "PATH": "${containerEnv:PATH}:/home/vscode/.local/bin"
+    },
+    "postCreateCommand": "bash .devcontainer/post-create.sh",
+    "forwardPorts": [8000],
+    "portsAttributes": {
+        "8000": {
+            "label": "FridgeLister",
+            "onAutoForward": "openBrowser"
+        }
+    },
+    "customizations": {
+        "codespaces": {
+            "openFiles": ["README.md"]
+        },
+        "vscode": {
+            "extensions": [
+                "bmewburn.vscode-intelephense-client"
+            ]
+        }
+    }
+}

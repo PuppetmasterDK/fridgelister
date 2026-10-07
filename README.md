@@ -19,7 +19,19 @@ helps with the shopping. FridgeLister lets them share one list.
   the last month and has run out of.
 - **History** shows what has been used.
 
-## Run it
+## Run it in your browser
+
+No install needed. On GitHub, click **Code → Codespaces → Create codespace
+on main**. After a couple of minutes you have an editor and a terminal with
+PHP, Composer and Claude Code installed and the demo data loaded. Then:
+
+```bash
+php artisan serve
+```
+
+and click **Open in Browser** when it pops up.
+
+## Run it on your own computer
 
 You need PHP 8.4.1 or newer, Composer, and Git. No Node, no database server:
 FridgeLister uses SQLite.
