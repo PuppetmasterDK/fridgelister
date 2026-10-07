@@ -13,6 +13,10 @@
     "remoteEnv": {
         "PATH": "${containerEnv:PATH}:/home/vscode/.local/bin"
     },
+    // A Codespaces prebuild runs the first two in advance, so a new
+    // codespace starts with everything installed.
+    "onCreateCommand": "bash .devcontainer/on-create.sh",
+    "updateContentCommand": "bash .devcontainer/update-content.sh",
     "postCreateCommand": "bash .devcontainer/post-create.sh",
     "forwardPorts": [8000],
     "portsAttributes": {
